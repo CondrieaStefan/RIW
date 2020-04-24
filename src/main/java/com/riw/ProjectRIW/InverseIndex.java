@@ -18,57 +18,6 @@ public class InverseIndex {
         this.outputInverseIndex = outputInverseIndex;
     }
 
-	//nu este folosit pentru ca dureaza foarte mult
-    public void createInverseIndex(){
-
-        FindIterable<Document> documentFindIterable = inputDirectIndex.find();
-        Iterator iterator = documentFindIterable.iterator();
-
-        HashMap<String, Integer> hashMap = new HashMap<>();
-
-        //  Parcurg lista de documente
-        while (iterator.hasNext())
-        {
-            Document document = (Document)iterator.next();
-            String docName = document.getString("doc");
-
-            List<Document> terms = (List<Document>) document.get("terms");
-
-            //System.out.print((++nrDocuments) + ". " + docName.substring(62) + "\t" + terms.size() + " cuv; ");
-
-
-            for(Document docTerm: terms)
-            {
-                String term = docTerm.getString("term");
-                Integer count = docTerm.getInteger("count");
-
-                if (hashMap.containsKey(term)){
-                    //if word 'term' is already in inverse index, add document location of the this new word
-
-                    Document newDocument = new Document("docs", (new Document("doc", docName).append("count", count)));
-
-                    Document modifyDocument = new Document();
-                    modifyDocument.put("$push", newDocument);
-
-
-                    //outputInverseIndex.updateOne(eq("term", term),  modifyDocument);
-                    outputInverseIndex.updateOne(new Document("term", term), modifyDocument);
-                }
-                else{
-                    Document newDocument = new Document("term", term)
-                            .append("docs", Arrays.asList(new Document("doc", docName).append("count", count)));
-
-                    outputInverseIndex.insertOne(newDocument);
-                    hashMap.put(term, 1);
-                }
-
-            }
-
-            System.out.println(" Hash size = " + hashMap.size());
-
-        }
-
-    }
 
 
     public void createInverseIndexLocal(){
